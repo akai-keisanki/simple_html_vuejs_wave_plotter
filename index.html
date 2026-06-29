@@ -7,26 +7,89 @@
   </head>
   <body>
     <main id=app>
-      <wave-plot :wavelength=wavelength :amplitude=amplitude :frequency-hz=frequencyHz></wave-plot>
-
-      <input type=number v-model=wavelength>
-      <input type=number v-model=amplitude>
-      <input type=number v-model=frequencyHz>
+      <div class=block>
+        <h2>wave 1</h2>
+        <div class=plot-area>
+          <wave-plot
+            :wavelength=wavelength1
+            :amplitude=amplitude1
+            :frequency-hz=frequencyHz1
+            line-color=#f00
+          ></wave-plot>
+        </div>
+        <div class=inputs>
+          <div class=input>
+            <label for=wavelength-1>Wavelength (lambda)</label>
+            <input name=wavelength-1 type=number v-model=wavelength1>
+          </div>
+          <div class=input>
+            <label for=amplitude-1>Amplitude (a)</label>
+            <input name=amplitude-1 type=number v-model=amplitude1>
+          </div>
+          <div class=input>
+            <label for=frequency-hz-1>Frequency (Hz) (f)</label>
+            <input name=frequency-hz-1 type=number v-model=frequencyHz1>
+          </div>
+        </div>
+      </div>
+      <div class=block>
+        <h2>wave 2</h2>
+        <div class=plot-area>
+          <wave-plot
+            :wavelength=wavelength2
+            :amplitude=amplitude2
+            :frequency-hz=frequencyHz2
+            line-color=#00f
+          ></wave-plot>
+        </div>
+        <div class=inputs>
+          <div class=input>
+            <label for=wavelength-2>Wavelength (lambda)</label>
+            <input name=wavelength-2 type=number v-model=wavelength2>
+          </div>
+          <div class=input>
+            <label for=amplitude-2>Amplitude (a)</label>
+            <input name=amplitude-2 type=number v-model=amplitude2>
+          </div>
+          <div class=input>
+            <label for=frequency-hz-2>Frequency (Hz) (f)</label>
+            <input name=frequency-hz-2 type=number v-model=frequencyHz2>
+          </div>
+        </div>
+      </div>
+      <div class=block>
+        <h2>wave 1 + wave 2</h2>
+        <div class=plot-area>
+          <wave-plot
+            :wavelength=wavelength1
+            :amplitude=amplitude1
+            :frequency-hz=frequencyHz1
+            :wavelength-2=wavelength2
+            :amplitude-2=amplitude2
+            :frequency-hz-2=frequencyHz2
+            :sum=true
+            line-color=#c0c
+          ></wave-plot>
+        </div>
+      </div>
     </main>
     <script>
       const { createApp, ref, computed, onMounted, onUnmounted } = Vue
 
       const app = createApp({
         setup: () => ({
-          wavelength: ref(2.0),
-          amplitude: ref(1.0),
-          frequencyHz: ref(1.0)
+          wavelength1: ref(2.0),
+          amplitude1: ref(1.0),
+          frequencyHz1: ref(1.0),
+          wavelength2: ref(2.0),
+          amplitude2: ref(1.0),
+          frequencyHz2: ref(1.0)
         })
       })
 
       app.component('wavePlot', {
         template: `
-          <div class=wave-plot style='display: flex; flex-direction: row; align-items: center; justify-content: flex-start'>
+          <div class=wave-plot style='display: flex; flex-direction: row; align-items: center; justify-content: center'>
             <div class=wave-plot-sample v-for='(style, i) in sampleStyles' :style=style></div>
           </div>
         `,
@@ -38,7 +101,11 @@
           scale: { type: Number, default: 16 },
           'sample-width': { type: String, default: '1px' },
           'line-width': { type: String, default: '4px' },
-          'line-color': { type: String, default: '#0000000' }
+          'line-color': { type: String, default: '#0000000' },
+          'wavelength-2': { type: Number, default: 0 },
+          'amplitude-2': { type: Number, default: 0 },
+          'frequency-hz-2': { type: Number, default: 0 },
+          sum: { type: Boolean, default: false }
         },
         setup(props) {
           const t = ref(0.0);
@@ -57,7 +124,9 @@
 
           const plotYPoints = computed(() => Array.from(
             { length: props.samples },
-            (_, x) => Math.sin((x - (t.value * props.scale) * props.frequencyHz * props.wavelength) * 2 * Math.PI / (props.wavelength * props.scale)) * (props.amplitude * props.scale)
+            (_, x) =>
+              Math.sin((x - (t.value * props.scale) * props.frequencyHz * props.wavelength) * 2 * Math.PI / (props.wavelength * props.scale)) * (props.amplitude * props.scale) 
+              + (props.sum ? Math.sin((x - (t.value * props.scale) * props.frequencyHz2 * props.wavelength2) * 2 * Math.PI / (props.wavelength2 * props.scale)) * (props.amplitude2 * props.scale) : 0)
           ))
 
           const sampleStyles = computed(() => Array.from(
@@ -79,9 +148,46 @@
       app.mount('#app')
     </script>
     <style>
+      .block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        margin: 10px;
+        background-color: #eee;
+      }
+
+      .inputs {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        gap: 10px;
+      }
+
+      .input {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .plot-area {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+        background-color: #000;
+      }
+
       .wave-plot {
         width: 1024px;
         height: 512px;
+        background-color: #fff;
       }
     </style>
   </body>
