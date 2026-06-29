@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple HTML+Vue.js Wave Plotter</title>
+    <meta encoding=utf-8>
+    <script src=https://unpkg.com/vue@3></script>
+  </head>
+  <body>
+    <main id=app>
+      <wave-plot :wavelength=wavelength :amplitude=amplitude :frequency-hz=frequencyHz></wave-plot>
+
+      <input type=number v-model=wavelength>
+      <input type=number v-model=amplitude>
+      <input type=number v-model=frequencyHz>
+    </main>
+    <script>
+      const { createApp, ref, computed, onMounted, onUnmounted } = Vue
+
+      const app = createApp({
+        setup: () => ({
+          wavelength: ref(2.0),
+          amplitude: ref(1.0),
+          frequencyHz: ref(1.0)
+        })
+      })
+
+      app.component('wavePlot', {
+        template: `
+          <div class=wave-plot style='display: flex; flex-direction: row; align-items: center; justify-content: flex-start'>
+            <div class=wave-plot-sample v-for='(style, i) in sampleStyles' :style=style></div>
+          </div>
+        `,
+        props: {
+          wavelength: { type: Number, required: true },
+          amplitude: { type: Number, required: true },
+          'frequency-hz': { type: Number, required: true },
+          samples: { type: Number, default: 1024 },
+          scale: { type: Number, default: 16 },
+          'sample-width': { type: String, default: '1px' },
+          'line-width': { type: String, default: '4px' },
+          'line-color': { type: String, default: '#0000000' }
+        },
+        setup(props) {
+          const t = ref(0.0);
+          let intervalId = null
+
+          onMounted(() =>
+            intervalId = setInterval(
+              () => t.value += 0.02,
+              20
+            )
+          )
+
+          onUnmounted(() =>
+            clearInterval(intervalId)
+          )
+
+          const plotYPoints = computed(() => Array.from(
+            { length: props.samples },
+            (_, x) => Math.sin((x - (t.value * props.scale) * props.frequencyHz * props.wavelength) * 2 * Math.PI / (props.wavelength * props.scale)) * (props.amplitude * props.scale)
+          ))
+
+          const sampleStyles = computed(() => Array.from(
+            { length: props.samples},
+            (_, i) => ({
+              width: props.lineWidth,
+              height: `${Math.abs(plotYPoints.value[i]) * 2}px`,
+              padding: '0',
+              [plotYPoints.value[i] > 0 ? 'border-top' : 'border-bottom']: 'solid',
+              borderWidth: props.lineWidth,
+              borderColor: props.lineColor
+            })
+          ))
+
+          return {t, plotYPoints, sampleStyles }
+        }
+      })
+
+      app.mount('#app')
+    </script>
+    <style>
+      .wave-plot {
+        width: 1024px;
+        height: 512px;
+      }
+    </style>
+  </body>
+</html>
