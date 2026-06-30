@@ -1,0 +1,46 @@
+* {
+  font-family: "Noto Sans Mono", "Consolas", monospace;
+  color: #fff;
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+html, body {
+    margin: 0;
+    background: rgb(26, 26, 26);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: fixed radial-gradient(circle, rgb(36, 39, 33) -50%, rgb(0, 0, 0) 100%);
+}
+
+input
+{
+    background-color: rgb(209, 255, 197);
+    color: #000;
+    font-size: 20px;
+    margin: 10px;
+    border: solid transparent;
+    transition: transform 0.3s ease,
+    box-shadow 1.2s ease;
+}
+
+input:hover
+{
+    transform: scale(1.05);
+    box-shadow: rgb(119, 141, 113) 1px 1px 10px 3px;
+}
+
+h1
+{
+  font-size: 30px;
+}
+
+h2
+{
+  font-size: 25px;
+}
